@@ -75,59 +75,92 @@ impl From<ThemeArg> for Theme {
     }
 }
 
+const ABOUT: &str = "A fast terminal music visualizer for macOS — ten styles, system-audio capture, Thai-script matrix rain.";
+
+const AFTER_HELP: &str = "\
+\x1b[1mExamples\x1b[0m
+  spectra                           visualize default microphone
+  spectra --system                  capture system audio (ScreenCaptureKit)
+  spectra -f song.mp3 -s mirror     play a file, mirror style
+  spectra -s matrix -t fire -n 40   matrix rain, fire palette, 40 bars
+
+\x1b[1mControls (in-app)\x1b[0m
+  space / ← →   cycle style              1–9, p   jump to style
+  t             cycle theme              + / -    speed
+  [ / ]         fewer / more bars        0        auto-fit bars
+  q / esc       quit
+
+\x1b[1mAuthor\x1b[0m  Ibrar Yunus
+  Website   https://ibraryunus.com
+  GitHub    https://github.com/IbrarYunus
+  LinkedIn  https://www.linkedin.com/in/ibrar-yunus/
+
+Run `spectra --credits` for full credits.";
+
 #[derive(Parser)]
 #[command(
     name = "spectra",
     version,
-    about = "Terminal music visualizer for macOS — by Ibrar Yunus",
-    long_about = "spectra — a fast terminal music visualizer with ten styles, system-audio capture via ScreenCaptureKit, and Thai-script matrix rain.\n\nCrafted by Ibrar Yunus (github.com/IbrarYunus)."
+    about = ABOUT,
+    long_about = None,
+    after_help = AFTER_HELP,
+    after_long_help = AFTER_HELP,
+    help_template = "\
+\x1b[1;36m{name}\x1b[0m {version} — {about}
+
+\x1b[1mUsage:\x1b[0m {usage}
+
+{all-args}
+{after-help}",
 )]
 struct Cli {
+    // ── Input ──────────────────────────────────────────────
     /// Audio file to play & visualize (mp3/wav/flac/ogg/m4a)
-    #[arg(short, long)]
+    #[arg(short, long, value_name = "PATH", help_heading = "Input")]
     file: Option<String>,
 
-    /// Input device name (microphone); omit for default
-    #[arg(short, long)]
+    /// Microphone device name (omit for system default)
+    #[arg(short, long, value_name = "NAME", help_heading = "Input")]
     device: Option<String>,
 
-    /// Initial visual style
-    #[arg(short, long, value_enum, default_value = "bars")]
+    /// Capture system audio via ScreenCaptureKit (macOS 13+, needs Screen Recording permission)
+    #[cfg(target_os = "macos")]
+    #[arg(long, help_heading = "Input")]
+    system: bool,
+
+    /// List available input devices and exit
+    #[arg(long, help_heading = "Input")]
+    list_devices: bool,
+
+    // ── Display ────────────────────────────────────────────
+    /// Visual style
+    #[arg(short, long, value_enum, default_value = "bars", value_name = "NAME", help_heading = "Display")]
     style: StyleArg,
 
     /// Color theme
-    #[arg(short, long, value_enum, default_value = "rainbow")]
+    #[arg(short, long, value_enum, default_value = "rainbow", value_name = "NAME", help_heading = "Display")]
     theme: ThemeArg,
 
-    /// Frames per second (1-120)
-    #[arg(long, default_value_t = 60)]
-    fps: u32,
-
     /// Number of spectrum bars (0 = fit terminal width)
-    #[arg(short = 'n', long, default_value_t = 10)]
+    #[arg(short = 'n', long, default_value_t = 10, value_name = "N", help_heading = "Display")]
     bars: usize,
 
-    /// Animation speed: 1.0 = normal, <1 slower (smoother), >1 snappier
-    #[arg(long, default_value_t = 0.4)]
+    /// Animation speed (1.0 = normal, <1 smoother, >1 snappier)
+    #[arg(long, default_value_t = 0.4, value_name = "F", help_heading = "Display")]
     speed: f32,
 
-    /// List available input devices and exit
-    #[arg(long)]
-    list_devices: bool,
+    /// Frames per second (1-120)
+    #[arg(long, default_value_t = 60, value_name = "N", help_heading = "Display")]
+    fps: u32,
 
-    /// Show author & credits, then exit
-    #[arg(long)]
-    credits: bool,
-
-    /// Capture system audio via ScreenCaptureKit (macOS 13+).
-    /// Requires Screen Recording permission for your terminal app.
-    #[cfg(target_os = "macos")]
-    #[arg(long)]
-    system: bool,
-
-    /// Hide the help/status bar
-    #[arg(long)]
+    /// Hide the status bar
+    #[arg(long, help_heading = "Display")]
     no_ui: bool,
+
+    // ── Info ───────────────────────────────────────────────
+    /// Show author & credits, then exit
+    #[arg(long, help_heading = "Info")]
+    credits: bool,
 }
 
 fn print_credits() {
