@@ -96,7 +96,13 @@ Without Pridi, your terminal falls back to whatever renders Thai — it still wo
 
 ## Credits
 
-Built by **Ibrar Yunus** — Full-Stack AI Engineer & Data Scientist (University of St Andrews, CS Gold Medal). Run `spectra --credits` for full attribution and links.
+Built by **[Ibrar Yunus](https://ibraryunus.com)** — Full-Stack AI Engineer & Data Scientist (University of St Andrews, CS Gold Medal).
+
+- Website — [ibraryunus.com](https://ibraryunus.com)
+- GitHub — [@IbrarYunus](https://github.com/IbrarYunus)
+- LinkedIn — [ibrar-yunus](https://www.linkedin.com/in/ibrar-yunus/)
+
+Run `spectra --credits` for full in-app attribution.
 
 ## Build requirements
 

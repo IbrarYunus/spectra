@@ -143,9 +143,9 @@ fn print_credits() {
     println!("    OxfordHack 2017 participant");
     println!();
     println!("  \x1b[1mLinks\x1b[0m");
+    println!("    Website   https://ibraryunus.com");
     println!("    GitHub    https://github.com/IbrarYunus");
     println!("    LinkedIn  https://www.linkedin.com/in/ibrar-yunus/");
-    println!("    Website   https://ibraryunusdotcom.wordpress.com/");
     println!("    X         https://x.com/ibraryunus");
     println!();
     println!("  \x1b[1mThanks\x1b[0m");
