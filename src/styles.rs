@@ -413,8 +413,8 @@ fn render_matrix(
         if state.drops.iter().any(|d| d.col == col) {
             continue;
         }
-        let len = 6 + (rng_f32(&mut state.rng) * 14.0) as usize;
-        let speed = 0.25 + rng_f32(&mut state.rng) * 0.9;
+        let len = 18 + (rng_f32(&mut state.rng) * 30.0) as usize;
+        let speed = 0.10 + rng_f32(&mut state.rng) * 0.35;
         let chars: Vec<char> = (0..len).map(|_| matrix_char(&mut state.rng)).collect();
         // Randomize starting offset slightly above the top so streams don't all line up.
         let start_y = -(rng_f32(&mut state.rng) * 4.0);
@@ -427,7 +427,7 @@ fn render_matrix(
         });
     }
 
-    let speed_mul = 0.35 + overall * 1.6;
+    let speed_mul = 0.15 + overall * 0.7;
 
     // CRT phosphor palette: head is bright white-green, next two are bold bright theme,
     // tail fades through theme to near-black. Bold on the top 3 chars gives the glow.
