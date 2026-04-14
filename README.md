@@ -31,9 +31,12 @@ spectra --list-devices
 ### Homebrew (recommended)
 
 ```sh
-brew tap <your-user>/spectra
-brew install spectra
+brew tap IbrarYunus/spectra
+brew install spectra-vis
 ```
+
+> The formula is called `spectra-vis` (the name `spectra` is taken in homebrew-core
+> by an unrelated C++ eigenvalue library). The installed command is still `spectra`.
 
 ### From source
 
