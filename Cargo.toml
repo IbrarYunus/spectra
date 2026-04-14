@@ -1,0 +1,23 @@
+[package]
+name = "spectra"
+version = "0.1.0"
+edition = "2021"
+description = "A terminal music visualizer with multiple styles"
+license = "MIT"
+repository = "https://github.com/ibraryunus/spectra"
+
+[dependencies]
+cpal = "0.15"
+rustfft = "6.2"
+ratatui = "0.28"
+crossterm = "0.28"
+clap = { version = "4.5", features = ["derive"] }
+anyhow = "1"
+rodio = { version = "0.19", default-features = false, features = ["symphonia-all"] }
+parking_lot = "0.12"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+opt-level = 3
