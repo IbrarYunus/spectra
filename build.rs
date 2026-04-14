@@ -27,6 +27,8 @@ fn main() {
             "-parse-as-library",
             "-emit-library",
             "-O",
+            "-swift-version",
+            "5",
             "-module-name",
             "SpectraSC",
             "-target",
