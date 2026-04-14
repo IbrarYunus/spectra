@@ -20,7 +20,6 @@ REPO="IbrarYunus/spectra"
 TAP="IbrarYunus/homebrew-spectra"
 FORMULA_NAME="spectra-vis"
 ARM_ARCHIVE="spectra-${VERSION}-arm64-apple-darwin.tar.gz"
-INTEL_ARCHIVE="spectra-${VERSION}-x86_64-apple-darwin.tar.gz"
 RELEASES_BASE="https://github.com/${REPO}/releases/download/${TAG}"
 
 say()  { printf "\033[1;36m==>\033[0m %s\n" "$*"; }
@@ -79,9 +78,7 @@ MAX_ATTEMPTS=80   # 80 × 15s = 20min
 for attempt in $(seq 1 $MAX_ATTEMPTS); do
   ASSETS=$(gh release view "$TAG" --repo "$REPO" --json assets -q '.assets[].name' 2>/dev/null || true)
   if echo "$ASSETS" | grep -qx "$ARM_ARCHIVE" && \
-     echo "$ASSETS" | grep -qx "$INTEL_ARCHIVE" && \
-     echo "$ASSETS" | grep -qx "${ARM_ARCHIVE}.sha256" && \
-     echo "$ASSETS" | grep -qx "${INTEL_ARCHIVE}.sha256"; then
+     echo "$ASSETS" | grep -qx "${ARM_ARCHIVE}.sha256"; then
     printf "\n"
     say "Release assets are live"
     break
@@ -95,14 +92,12 @@ for attempt in $(seq 1 $MAX_ATTEMPTS); do
   sleep 15
 done
 
-# ── fetch the published checksums ───────────────────────────────────────
-say "Fetching sha256 checksums"
+# ── fetch the published checksum ────────────────────────────────────────
+say "Fetching sha256 checksum"
 ARM_SHA=$(curl -fsSL "${RELEASES_BASE}/${ARM_ARCHIVE}.sha256" | awk '{print $1}')
-INTEL_SHA=$(curl -fsSL "${RELEASES_BASE}/${INTEL_ARCHIVE}.sha256" | awk '{print $1}')
-echo "    arm64:  $ARM_SHA"
-echo "    x86_64: $INTEL_SHA"
-if [[ -z "$ARM_SHA" || -z "$INTEL_SHA" ]]; then
-  echo "error: could not fetch one or both sha256 files" >&2
+echo "    arm64: $ARM_SHA"
+if [[ -z "$ARM_SHA" ]]; then
+  echo "error: could not fetch sha256 file" >&2
   exit 1
 fi
 
@@ -117,21 +112,13 @@ cat > "$TAP_DIR/Formula/${FORMULA_NAME}.rb" <<EOF
 class SpectraVis < Formula
   desc "Fast terminal music visualiser with ten styles and ScreenCaptureKit audio"
   homepage "https://github.com/IbrarYunus/spectra"
+  url "${RELEASES_BASE}/${ARM_ARCHIVE}"
+  sha256 "${ARM_SHA}"
   version "${VERSION}"
   license "MIT"
 
   depends_on :macos
-
-  on_macos do
-    on_arm do
-      url "${RELEASES_BASE}/${ARM_ARCHIVE}"
-      sha256 "${ARM_SHA}"
-    end
-    on_intel do
-      url "${RELEASES_BASE}/${INTEL_ARCHIVE}"
-      sha256 "${INTEL_SHA}"
-    end
-  end
+  depends_on arch: :arm64
 
   def install
     bin.install "spectra"
