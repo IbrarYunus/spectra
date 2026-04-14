@@ -82,6 +82,14 @@ final class SpectraStreamHandler: NSObject, SCStreamOutput, SCStreamDelegate {
     }
 }
 
+final class StartResult {
+    var rc: Int32 = 0
+    var errCode: Int32 = 0
+    var sampleRate: Int32 = 0
+    var stream: SCStream?
+    var handler: SpectraStreamHandler?
+}
+
 final class SpectraSC {
     static var shared: SpectraSC?
     var stream: SCStream?
@@ -92,16 +100,14 @@ final class SpectraSC {
                _ srOut: UnsafeMutablePointer<Int32>,
                _ errOut: UnsafeMutablePointer<Int32>) -> Int32 {
         let sem = DispatchSemaphore(value: 0)
-        var rc: Int32 = 0
-        var errCode: Int32 = 0
+        let result = StartResult()
         let requestedSR: Int32 = 48000
 
-        Task.detached { [weak self] in
-            guard let self = self else { sem.signal(); return }
+        Task.detached {
             do {
                 let content = try await SCShareableContent.current
                 guard let display = content.displays.first else {
-                    rc = -1; errCode = -1; sem.signal(); return
+                    result.rc = -1; result.errCode = -1; sem.signal(); return
                 }
                 let filter = SCContentFilter(display: display, excludingWindows: [])
                 let config = SCStreamConfiguration()
@@ -122,20 +128,25 @@ final class SpectraSC {
                     sampleHandlerQueue: DispatchQueue.global(qos: .userInteractive)
                 )
                 try await stream.startCapture()
-                self.stream = stream
-                self.handler = handler
-                srOut.pointee = requestedSR
+                result.stream = stream
+                result.handler = handler
+                result.sampleRate = requestedSR
             } catch {
                 let ns = error as NSError
                 NSLog("spectra: start failed: \(ns.domain) \(ns.code) \(ns.localizedDescription)")
-                rc = -2
-                errCode = Int32(truncatingIfNeeded: ns.code)
+                result.rc = -2
+                result.errCode = Int32(truncatingIfNeeded: ns.code)
             }
             sem.signal()
         }
         sem.wait()
-        errOut.pointee = errCode
-        return rc
+        self.stream = result.stream
+        self.handler = result.handler
+        if result.rc == 0 {
+            srOut.pointee = result.sampleRate
+        }
+        errOut.pointee = result.errCode
+        return result.rc
     }
 
     func stop() {
