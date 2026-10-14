@@ -2,6 +2,8 @@
 
 A fast terminal music visualizer for macOS (Apple Silicon + Intel). Single static binary, no runtime deps, works great in Hyper / iTerm2 / Terminal.app / Ghostty / kitty.
 
+Case study and write-up: [ibraryunus.com/work/spectra/](https://ibraryunus.com/work/spectra/)
+
 ```
 spectra              # visualize default microphone input
 spectra -f song.mp3  # play & visualize an audio file
